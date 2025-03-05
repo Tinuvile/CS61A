@@ -331,7 +331,9 @@ def boar_strategy(score, opponent_score, threshold=11, num_rolls=6):
     points, and returns NUM_ROLLS otherwise. Ignore the Sus Fuss rule.
     """
     # BEGIN PROBLEM 10
-    return num_rolls  # Remove this line once implemented.
+    if boar_brawl(score, opponent_score) >= threshold:
+        return 0
+    return num_rolls
     # END PROBLEM 10
 
 
@@ -340,7 +342,12 @@ def sus_strategy(score, opponent_score, threshold=11, num_rolls=6):
     THRESHOLD points, and returns NUM_ROLLS otherwise. Consider both the Boar Brawl and
     Suss Fuss rules."""
     # BEGIN PROBLEM 11
-    return num_rolls  # Remove this line once implemented.
+    boar_gain = boar_brawl(score, opponent_score)
+    new_score = score + boar_gain
+    after_sus = sus_points(new_score)
+    if after_sus - score >= threshold:
+        return 0
+    return num_rolls
     # END PROBLEM 11
 
 
@@ -350,7 +357,36 @@ def final_strategy(score, opponent_score):
     *** YOUR DESCRIPTION HERE ***
     """
     # BEGIN PROBLEM 12
-    return 6  # Remove this line once implemented.
+    goal = 100
+
+    if score >= goal:
+        return 0
+
+    boar_gain = boar_brawl(score, opponent_score)
+    new_score = score + boar_gain
+
+    if new_score >= goal:
+        return 0
+
+    after_sus = sus_points(new_score)
+    sus_gain = after_sus - score
+
+    if after_sus >= goal:
+        return 0
+
+    remaining = goal - score
+
+    if remaining <= 15:
+        avg_1 = make_averaged(roll_dice, 1000)(1, six_sided)
+        if avg_1 >= remaining:
+            return 1
+        avg_2 = make_averaged(roll_dice, 1000)(2, six_sided)
+        if avg_2 >= remaining:
+            return 2
+
+    if score > opponent_score:
+        return 1 if sus_gain < 0 else 2
+    return 4
     # END PROBLEM 12
 
 
