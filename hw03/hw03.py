@@ -123,7 +123,8 @@ def count_dollars(total):
     >>> check(HW_SOURCE_FILE, 'count_dollars', ['While', 'For'])
     True
     """
-    "*** YOUR CODE HERE ***"
+
+
 
 
 def next_larger_dollar(bill):
