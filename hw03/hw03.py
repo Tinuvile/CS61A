@@ -123,7 +123,16 @@ def count_dollars(total):
     >>> check(HW_SOURCE_FILE, 'count_dollars', ['While', 'For'])
     True
     """
-    "*** YOUR CODE HERE ***"
+    def helper(amount, current_bill):
+        if amount == 0:
+            return 1
+        if amount < 0 or current_bill is None:
+            return 0
+        use_current_bill = helper(amount - current_bill, current_bill)
+        next_bill = next_smaller_dollar(current_bill)
+        not_use_current_bill = helper(amount, next_bill)
+        return not_use_current_bill + use_current_bill
+    return helper(total, 100)
 
 
 
@@ -160,8 +169,16 @@ def count_dollars_upward(total):
     >>> check(HW_SOURCE_FILE, 'count_dollars_upward', ['While', 'For'])
     True
     """
-    "*** YOUR CODE HERE ***"
-
+    def helper(amount, current_bill):
+        if amount == 0:
+            return 1
+        if amount < 0 or current_bill is None:
+            return 0
+        next_bill = next_larger_dollar(current_bill)
+        use_current_bill = helper(amount - current_bill, current_bill)
+        not_use_current_bill = helper(amount, next_bill)
+        return not_use_current_bill + use_current_bill
+    return helper(total, 1)
 
 def print_move(origin, destination):
     """Print instructions to move a disk."""
