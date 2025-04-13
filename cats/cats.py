@@ -190,7 +190,19 @@ def autocorrect(typed_word, word_list, diff_function, limit):
     'testing'
     """
     # BEGIN PROBLEM 5
-    "*** YOUR CODE HERE ***"
+    if typed_word in word_list:
+        return typed_word
+    else:
+        diff = float('inf')
+        word_return = typed_word
+        for word in word_list:
+            current_diff = diff_function(typed_word, word, limit)
+            if diff > current_diff:
+                diff = current_diff
+                word_return = word
+        if diff <= limit:
+            return word_return
+        return typed_word
     # END PROBLEM 5
 
 
@@ -217,7 +229,20 @@ def furry_fixes(typed, source, limit):
     5
     """
     # BEGIN PROBLEM 6
-    assert False, 'Remove this line'
+    # assert False, 'Remove this line'
+    changes = sum(1 for t, s in zip(typed, source) if t != s)
+
+    if len(typed) == len(source):
+        return changes
+
+    length_diff = abs(len(typed) - len(source))
+    if length_diff + changes > limit:
+        return limit + 1
+
+    if len(typed) < len(source):
+        return furry_fixes(typed + " ", source, limit)
+    else:
+        return furry_fixes(typed, source + " ", limit)
     # END PROBLEM 6
 
 
