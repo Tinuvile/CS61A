@@ -230,19 +230,31 @@ def furry_fixes(typed, source, limit):
     """
     # BEGIN PROBLEM 6
     # assert False, 'Remove this line'
-    changes = sum(1 for t, s in zip(typed, source) if t != s)
+    def helper(t_idx, s_idx, changes):
+        if changes > limit:
+            return limit + 1  # 超过限制，直接返回
 
-    if len(typed) == len(source):
-        return changes
+        # 处理字符串结束的情况
+        if t_idx == len(typed) and s_idx == len(source):
+            return changes
+        if t_idx == len(typed):
+            # 需要插入剩余的 source 字符
+            return changes + (len(source) - s_idx)
+        if s_idx == len(source):
+            # 需要删除剩余的 typed 字符
+            return changes + (len(typed) - t_idx)
 
-    length_diff = abs(len(typed) - len(source))
-    if length_diff + changes > limit:
-        return limit + 1
+        # 当前字符匹配，继续处理下一个字符
+        if typed[t_idx] == source[s_idx]:
+            return helper(t_idx + 1, s_idx + 1, changes)
 
-    if len(typed) < len(source):
-        return furry_fixes(typed + " ", source, limit)
-    else:
-        return furry_fixes(typed, source + " ", limit)
+        # 否则，替换当前字符
+        replace = helper(t_idx + 1, s_idx + 1, changes + 1)
+
+        return replace  # 返回最小修改次数
+
+    total_changes = helper(0, 0, 0)
+    return total_changes if total_changes <= limit else limit + 1
     # END PROBLEM 6
 
 
@@ -263,23 +275,50 @@ def minimum_mewtations(typed, source, limit):
     >>> minimum_mewtations("ckiteus", "kittens", big_limit) # ckiteus -> kiteus -> kitteus -> kittens
     3
     """
-    assert False, 'Remove this line'
-    if ___________: # Base cases should go here, you may add more base cases as needed.
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
-    # Recursive cases should go below here
-    if ___________: # Feel free to remove or add additional cases
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
-    else:
-        add = ... # Fill in these lines
-        remove = ...
-        substitute = ...
-        # BEGIN
-        "*** YOUR CODE HERE ***"
-        # END
+    # # assert False, 'Remove this line'
+    # if ___________: # Base cases should go here, you may add more base cases as needed.
+    #     # BEGIN
+    #     "*** YOUR CODE HERE ***"
+    #     # END
+    # # Recursive cases should go below here
+    # if ___________: # Feel free to remove or add additional cases
+    #     # BEGIN
+    #     "*** YOUR CODE HERE ***"
+    #     # END
+    # else:
+    #     add = ... # Fill in these lines
+    #     remove = ...
+    #     substitute = ...
+    #     # BEGIN
+    #     "*** YOUR CODE HERE ***"
+    #     # END
+    def helper(t_idx, s_idx, changes):
+        if changes > limit:
+            return limit + 1  # 超过限制，直接返回
+
+        # 处理字符串结束的情况
+        if t_idx == len(typed) and s_idx == len(source):
+            return changes
+        if t_idx == len(typed):
+            # 需要插入剩余的 source 字符
+            return changes + (len(source) - s_idx)
+        if s_idx == len(source):
+            # 需要删除剩余的 typed 字符
+            return changes + (len(typed) - t_idx)
+
+        # 当前字符匹配，继续处理下一个字符
+        if typed[t_idx] == source[s_idx]:
+            return helper(t_idx + 1, s_idx + 1, changes)
+
+        # 否则，添加、移除或替换当前字符
+        insert = helper(t_idx, s_idx + 1, changes + 1)
+        replace = helper(t_idx + 1, s_idx + 1, changes + 1)
+        delete = helper(t_idx + 1, s_idx, changes + 1)
+
+        return min(insert, replace, delete)  # 返回最小修改次数
+
+    total_changes = helper(0, 0, 0)
+    return total_changes if total_changes <= limit else limit + 1
 
 
 # Ignore the line below
@@ -324,7 +363,20 @@ def report_progress(typed, source, user_id, upload):
     0.2
     """
     # BEGIN PROBLEM 8
-    "*** YOUR CODE HERE ***"
+    # 计算正确的单词数量
+    correct_count = 0
+    for i in range(min(len(typed), len(source))):
+        if typed[i] == source[i]:
+            correct_count += 1
+        else:
+            break
+    # 计算进度为浮点数
+    progress = correct_count / len(source) if source else 0
+    # 准备上传的数据
+    report_data = {'id': user_id, 'progress': progress}
+    # 上传进度
+    upload(report_data)
+    return progress
     # END PROBLEM 8
 
 
@@ -349,6 +401,12 @@ def time_per_word(words, timestamps_per_player):
     tpp = timestamps_per_player  # A shorter name (for convenience)
     # BEGIN PROBLEM 9
     times = []  # You may remove this line
+    for player_timestamps in timestamps_per_player:
+        player_times = []
+        for i in range(len(words)):
+            duration = player_timestamps[i + 1] - player_timestamps[i]
+            player_times.append(duration)
+        times.append(player_times)
     # END PROBLEM 9
     return {'words': words, 'times': times}
 
@@ -376,7 +434,33 @@ def fastest_words(words_and_times):
     player_indices = range(len(times))  # contains an *index* for each player
     word_indices = range(len(words))    # contains an *index* for each word
     # BEGIN PROBLEM 10
-    "*** YOUR CODE HERE ***"
+    words, times = words_and_times['words'], words_and_times['times']
+    num_players = len(times)  # 玩家数量
+    num_words = len(words)     # 单词数量
+
+    # 初始化每个玩家的结果列表
+    fastest = [[] for _ in range(num_players)]
+
+    # 遍历每个单词
+    for word_index in range(num_words):
+        fastest_time = float('inf')  # 初始化最快时间为无穷大
+        fastest_player = -1  # 初始化最快玩家索引
+
+        # 遍历每个玩家
+        for player_index in range(num_players):
+            time_taken = get_time(times, player_index, word_index)
+            # 找到最小时间并更新最快玩家
+            if time_taken < fastest_time:
+                fastest_time = time_taken
+                fastest_player = player_index
+            elif time_taken == fastest_time:
+                # 如果时间相同，选择索引较小的玩家
+                fastest_player = min(fastest_player, player_index)
+
+        # 将最快的单词添加到对应玩家的列表中
+        fastest[fastest_player].append(words[word_index])
+
+    return fastest
     # END PROBLEM 10
 
 
